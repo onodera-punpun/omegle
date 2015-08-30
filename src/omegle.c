@@ -57,63 +57,71 @@ int main() {
 	char *message = NULL;
 	char *count   = NULL;
 	char* say_input;
-	while(1) {
-	user.event = get_event(user.id);
-	/* fprintf(stdout,"[+] Event %s\n", user.event); */
 
-	/* Are we waiting */
-	if(check_event("waiting", WITHOUT_RESULTS))
-		fprintf(stdout,"[!] Waiting...\n");
+	pid_t child_pid;
+	child_pid = fork();
 
-	/* Got connected */
-	if(check_event("connected", WITHOUT_RESULTS))
-		fprintf(stdout,"[!] Connected to chat.\n");
+	if(child_pid >= 0) {
+		if(child_pid == 1) {
+			while(1) {
+			user.event = get_event(user.id);
+			/* fprintf(stdout,"[+] Event %s\n", user.event); */
 
-	/* Got count */
-	if(check_event("count", WITH_RESULTS)) {
-		count = parse_json_value(user.event, "count");
-		fprintf(stdout,"[!] Count: %s\n", count);
-		free(count);
-	}
+			/* Are we waiting */
+			if(check_event("waiting", WITHOUT_RESULTS))
+				fprintf(stdout,"[!] Waiting...\n");
 
-	/* Stranger typing */
-	if(check_event("typing", WITHOUT_RESULTS))
-		fprintf(stdout,"[!] Stranger typing...\n");
+			/* Got connected */
+			if(check_event("connected", WITHOUT_RESULTS))
+				fprintf(stdout,"[!] Connected to chat.\n");
 
-	/* Stranger stopped typing */
-	if(check_event("stoppedTyping", WITHOUT_RESULTS))
-		fprintf(stdout,"[!] Stranger stopped typing.\n");
+			/* Got count */
+			if(check_event("count", WITH_RESULTS)) {
+				count = parse_json_value(user.event, "count");
+				fprintf(stdout,"[!] Count: %s\n", count);
+				free(count);
+			}
+
+			/* Stranger typing */
+			if(check_event("typing", WITHOUT_RESULTS))
+				fprintf(stdout,"[!] Stranger typing...\n");
+
+			/* Stranger stopped typing */
+			if(check_event("stoppedTyping", WITHOUT_RESULTS))
+				fprintf(stdout,"[!] Stranger stopped typing.\n");
 		
-	/* Got message */
-	if(check_event("gotMessage", WITH_RESULTS)) {
-		char *message = parse_json_value(user.event, "gotMessage");
-		fprintf(stdout,"Stranger: %s\n", message);
-		free(message);
+			/* Got message */
+			if(check_event("gotMessage", WITH_RESULTS)) {
+				char *message = parse_json_value(user.event, "gotMessage");
+				fprintf(stdout,"Stranger: %s\n", message);
+				free(message);
+			}
+
+			/* Stranger disconnected */
+			if(check_event("strangerDisconnected", WITH_RESULTS)) {
+				fprintf(stdout,"[!] Stranger disconnected.\n");
+				fprintf(stdout,"[!] Because of event: %s.\n", user.event);
+				/* Reconnect when stranger disconnects */
+				free(user.id);
+				reconnect();
+			}
+
+			free(user.event);
+			}
+		} else {
+			/* Send message */
+			say_input = readline("");
+
+			if(say_input != NULL) { 
+				say_something(say_input, user.id);
+				free(say_input);
+			}
+		}
 	}
 
-	/* Send message */
-	say_input = readline("");
-
-	if(say_input != NULL) { 
-		say_something(say_input, user.id);
-		free(say_input);
-	}
-
-	/* Stranger disconnected */
-	if(check_event("strangerDisconnected", WITH_RESULTS)) {
-		fprintf(stdout,"[!] Stranger disconnected.\n");
-		fprintf(stdout,"[!] Because of event: %s.\n", user.event);
-		/* Reconnect when stranger disconnects */
-		free(user.id);
-		reconnect();
-	}
-
-	free(user.event);
-	}
 	/***********************************/
 	/*	  checking events ended	  */
 	/***********************************/
-
 
 	/* cleaning allocated memory */
 	free(user.id);
