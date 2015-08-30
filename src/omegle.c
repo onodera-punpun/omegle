@@ -29,9 +29,9 @@ int check_event(char *, int);
 struct sockaddr_in *create_remote();
 
 struct omegle {
-    char *id;        /* id */
-    char *event;     /* current event from /events */
-    char *ip;        /* omegle ip */
+	char *id;		/* id */
+	char *event;	 /* current event from /events */
+	char *ip;		/* omegle ip */
 };
 
 int sock = -1;
@@ -39,111 +39,111 @@ struct omegle user;
 
 int main() {
 
-    /* Get omegle.com IP */
-    if((user.ip = get_ip("omegle.com")) == NULL)
+	/* Get omegle.com IP */
+	if((user.ip = get_ip("omegle.com")) == NULL)
 	exit(-1);
 
-    /* Get user stranger ID */
-    user.id = get_id();
-    remchar(user.id, '"');
-    fprintf(stdout,"[!] Stranger id: %s\n", user.id);
-    fflush(stdout);
+	/* Get user stranger ID */
+	user.id = get_id();
+	remchar(user.id, '"');
+	fprintf(stdout,"[!] Stranger id: %s\n", user.id);
+	fflush(stdout);
 
-    /***********************************/
-    /*      checking events started    */
-    /***********************************/
-    char *message = NULL;
-    char *count   = NULL;
-    while(1) {
+	/***********************************/
+	/*	  checking events started	*/
+	/***********************************/
+	char *message = NULL;
+	char *count   = NULL;
+	while(1) {
 	user.event = get_event(user.id);
 	/* fprintf(stdout,"[+] Event %s\n", user.event); */
 
 	/* Are we waiting */
 	if(check_event("waiting", WITHOUT_RESULTS))
-	    fprintf(stdout,"[!] Waiting...\n");
+		fprintf(stdout,"[!] Waiting...\n");
 
 	/* Got connected */
 	if(check_event("connected", WITHOUT_RESULTS))
-	    fprintf(stdout,"[!] Connected to chat.\n");
+		fprintf(stdout,"[!] Connected to chat.\n");
 
 	/* Got count */
 	if(check_event("count", WITH_RESULTS)) {
-	    count = parse_json_value(user.event, "count");
-	    fprintf(stdout,"[!] Count: %s\n", count);
-	    free(count);
+		count = parse_json_value(user.event, "count");
+		fprintf(stdout,"[!] Count: %s\n", count);
+		free(count);
 	}
 
 	/* Stranger typing */
 	if(check_event("typing", WITHOUT_RESULTS))
-	    fprintf(stdout,"[!] Stranger typing...\n");
+		fprintf(stdout,"[!] Stranger typing...\n");
 
 	/* Stranger stopped typing */
 	if(check_event("stoppedTyping", WITHOUT_RESULTS))
-	    fprintf(stdout,"[!] Stranger stopped typing.\n");
-	    
+		fprintf(stdout,"[!] Stranger stopped typing.\n");
+		
 	/* Got message */
 	if(check_event("gotMessage", WITH_RESULTS)) {
-	    char *message = parse_json_value(user.event, "gotMessage");
-	    fprintf(stdout,"Stranger: %s\n", message);
-	    free(message);
+		char *message = parse_json_value(user.event, "gotMessage");
+		fprintf(stdout,"Stranger: %s\n", message);
+		free(message);
 
-	    /* Send a message when ever we get one just for testing */
-	    say_something("Hey what's up?", user.id);
+		/* Send a message when ever we get one just for testing */
+		// say_something("Hey what's up?", user.id);
 	}
 
 	/* Stranger disconnected */
 	if(check_event("strangerDisconnected", WITH_RESULTS)) {
-	    fprintf(stdout,"[!] Stranger disconnected.\n");
-	    fprintf(stdout,"[!] Because of event: %s\n", user.event);
-	    /* Reconnect when stranger disconnects */
-	    free(user.id);
-	    reconnect();
+		fprintf(stdout,"[!] Stranger disconnected.\n");
+		fprintf(stdout,"[!] Because of event: %s\n", user.event);
+		/* Reconnect when stranger disconnects */
+		free(user.id);
+		reconnect();
 	}
 
 	free(user.event);
-    }
-    /***********************************/
-    /*      checking events ended      */
-    /***********************************/
+	}
+	/***********************************/
+	/*	  checking events ended	  */
+	/***********************************/
 
 
-    /* cleaning allocated memory */
-    free(user.id);
-    free(user.ip);
-    return EXIT_SUCCESS;
+	/* cleaning allocated memory */
+	free(user.id);
+	free(user.ip);
+	return EXIT_SUCCESS;
 }
 
 /* Check if event exists in user.events */
 /* Return 1 if event is available */
 /* Return 0 if event is not available */ 
 int check_event(char *event, int with_result) {
-    if(strstr(parse_json_keys(user.event, with_result), event) != NULL)
+	if(strstr(parse_json_keys(user.event, with_result), event) != NULL)
 	return 1;
-    return 0;
+	return 0;
 }
 
 /* Reconnect when stranger disconnects */
 void reconnect()
 {
-    fprintf(stdout,"[!] Reconnecting()\n");
-    user.id = get_id();
-    remchar(user.id, '"');
-    fprintf(stdout,"[!] New Stranger id: %s\n", user.id);
-    fflush(stdout);
-    
+	fprintf(stdout,"[!] Reconnecting()\n");
+	user.id = get_id();
+	remchar(user.id, '"');
+	fprintf(stdout,"[!] New Stranger id: %s\n", user.id);
+	fflush(stdout);
+	
 }
 
 
 /* Remove a specific char from string */
 void remchar(char *string, char o)
 {
-    char *read, *write;
-    for(read = write = string; *read != '\0'; ++read) {
-        if(*read != o) {
-            *(write++) = *read;
-        }
-    }
-    *write = '\0';
+	char *read, *write;
+	for(read = write = string; *read != '\0'; ++read) {
+		if(*read != o) {
+			*(write++) = *read;
+		}
+	}
+	*write = '\0';
 }
 
 /* A function to send message to omegle */
@@ -151,257 +151,257 @@ void remchar(char *string, char o)
 /* message bounadires */
 void say_something(char *message, char *id)
 {
-    struct sockaddr_in *remote;
-    int tempres;
-    char *post_request;
+	struct sockaddr_in *remote;
+	int tempres;
+	char *post_request;
 
-    /* Creating socket */
-    if((sock = create_tcp_socket()) < 0) {
+	/* Creating socket */
+	if((sock = create_tcp_socket()) < 0) {
 	fprintf(stderr,"[!] Error while creating socket.\n");
 	exit(-1);
-    }
+	}
 
-    remote = create_remote();
+	remote = create_remote();
 
-    if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
-    	    perror("connect()");
-    	    exit(-1);
-    }
+	if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
+			perror("connect()");
+			exit(-1);
+	}
 
-    /* Create the POST request to get stranger id */
-    char message_command[2000];
-    sprintf(message_command, "send=%s&id=%s", message, id);
-    post_request = build_post(user.ip, "/send", message_command);
+	/* Create the POST request to get stranger id */
+	char message_command[2000];
+	sprintf(message_command, "send=%s&id=%s", message, id);
+	post_request = build_post(user.ip, "/send", message_command);
 
-    /* Sending post request to server and get results */
-    int sent = 0;
-    while(sent < (int)strlen(post_request)) {
+	/* Sending post request to server and get results */
+	int sent = 0;
+	while(sent < (int)strlen(post_request)) {
 	tempres = send(sock, post_request+sent, strlen(post_request)-sent, 0);
 	if(tempres == -1) {
-	    perror("send()");
-	    exit(-1);
+		perror("send()");
+		exit(-1);
 	}
 	sent += tempres;
-    }
+	}
 
-    fprintf(stdout,"You: %s\n", message);
+	fprintf(stdout,"You: %s\n", message);
 
-    free(remote);
-    free(post_request);
-    close(sock);    
+	free(remote);
+	free(post_request);
+	close(sock);	
 }
 
 
 /* Create sockaddr_in struct */
 struct sockaddr_in *create_remote()
 {
-    struct sockaddr_in *remote;
-    remote = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
-    remote->sin_family = AF_INET;
-    if((inet_pton(AF_INET, user.ip, (void *)&remote->sin_addr.s_addr)) < 0) {
+	struct sockaddr_in *remote;
+	remote = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
+	remote->sin_family = AF_INET;
+	if((inet_pton(AF_INET, user.ip, (void *)&remote->sin_addr.s_addr)) < 0) {
 	perror("inet_pton()");
 	exit(-1);
-    }
-    remote->sin_port = htons(80);
-    return remote;
+	}
+	remote->sin_port = htons(80);
+	return remote;
 }
 
 /* Get Event */
 char *get_event(char *id)
 {
-    struct sockaddr_in *remote;
-    int tempres;
-    char *post_request;
-    char buf[BUF_SIZE+1];
-    char *result;
+	struct sockaddr_in *remote;
+	int tempres;
+	char *post_request;
+	char buf[BUF_SIZE+1];
+	char *result;
 
-    /* Creating socket */
-    if((sock = create_tcp_socket()) < 0) {
+	/* Creating socket */
+	if((sock = create_tcp_socket()) < 0) {
 	fprintf(stderr,"[!] Error while creating socket.\n");
 	exit(-1);
-    }
+	}
 
-    remote = create_remote(); 
+	remote = create_remote(); 
 
-    if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
-    	    perror("connect()");
-    	    exit(-1);
-    }
+	if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
+			perror("connect()");
+			exit(-1);
+	}
 
-    /* Create the POST request to get stranger id */
-    char event_command[2000];
-    sprintf(event_command, "id=%s", id);
-    post_request = build_post(user.ip, "/events", event_command);
+	/* Create the POST request to get stranger id */
+	char event_command[2000];
+	sprintf(event_command, "id=%s", id);
+	post_request = build_post(user.ip, "/events", event_command);
 
-    /* Sending post request to server and get results */
-    int sent = 0;
-    while(sent < (int)strlen(post_request)) {
+	/* Sending post request to server and get results */
+	int sent = 0;
+	while(sent < (int)strlen(post_request)) {
 	tempres = send(sock, post_request+sent, strlen(post_request)-sent, 0);
 	if(tempres == -1) {
-	    perror("send()");
-	    exit(-1);
+		perror("send()");
+		exit(-1);
 	}
 	sent += tempres;
-    }
+	}
 
-    /* Reciving the data from server */
-    memset(buf, 0x00, sizeof(buf));
-    int htmlstart = 0;
-    char *event;
-    while((tempres = recv(sock, buf, BUF_SIZE, 0)) > 0) {
+	/* Reciving the data from server */
+	memset(buf, 0x00, sizeof(buf));
+	int htmlstart = 0;
+	char *event;
+	while((tempres = recv(sock, buf, BUF_SIZE, 0)) > 0) {
 	if(htmlstart == 0) {
-	    event = strstr(buf, "\r\n\r\n");
-	    if(event != NULL) {
+		event = strstr(buf, "\r\n\r\n");
+		if(event != NULL) {
 		htmlstart = 1;
 		event += 2;
-	    }
+		}
 	} else {
-	    event = buf;
+		event = buf;
 	}
 
 	/* If there's an event copy it for return */
 	if(htmlstart) {
-	    result = (char *)malloc(sizeof(char)*2500);
-	    if(result == NULL) {
+		result = (char *)malloc(sizeof(char)*2500);
+		if(result == NULL) {
 		perror("malloc()");
 		exit(-1);
-	    }
-	    memcpy(result, event, 2500);
+		}
+		memcpy(result, event, 2500);
 	}
 	memset(buf, 0, tempres);
-    }
+	}
 
-    if(tempres < 0) {
+	if(tempres < 0) {
 	perror("[!] Error reciving data.");
 	exit(-1);
-    }
+	}
 
-    free(remote);
-    free(post_request);
-    close(sock);
+	free(remote);
+	free(post_request);
+	close(sock);
 
-    return result;
+	return result;
 }
 
 /* Get Stranger ID */
 char *get_id()
 {
-    struct sockaddr_in *remote;
-    int tempres;
-    char *post_request;
-    char buf[BUF_SIZE+1];
-    char *result;
+	struct sockaddr_in *remote;
+	int tempres;
+	char *post_request;
+	char buf[BUF_SIZE+1];
+	char *result;
 
-    /* Creating socket */
-    if((sock = create_tcp_socket()) < 0)
+	/* Creating socket */
+	if((sock = create_tcp_socket()) < 0)
 	exit(-1);
 
 
-    remote = create_remote();
+	remote = create_remote();
 
-    if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
-	    perror("connect()");
-	    exit(-1);
-    }
+	if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0) {
+		perror("connect()");
+		exit(-1);
+	}
 
-    /* Create the POST request to get stranger id */
-    post_request = build_post(user.ip, "/start", "");
+	/* Create the POST request to get stranger id */
+	post_request = build_post(user.ip, "/start", "");
 
-    /* Sending post request to server and get results */
-    int sent = 0;
-    while(sent < (int)strlen(post_request)) {
+	/* Sending post request to server and get results */
+	int sent = 0;
+	while(sent < (int)strlen(post_request)) {
 	tempres = send(sock, post_request+sent, strlen(post_request)-sent, 0);
 	if(tempres == -1) {
-	    perror("send()");
-	    exit(-1);
+		perror("send()");
+		exit(-1);
 	}
 	sent += tempres;
-    }
+	}
 
-    /* Reciving the data from server */
-    memset(buf, 0x00, sizeof(buf));
-    int htmlstart = 0;
-    char *id;
-    while((tempres = recv(sock, buf, BUF_SIZE, 0)) > 0) {
+	/* Reciving the data from server */
+	memset(buf, 0x00, sizeof(buf));
+	int htmlstart = 0;
+	char *id;
+	while((tempres = recv(sock, buf, BUF_SIZE, 0)) > 0) {
 	if(htmlstart == 0) {
-	    id= strstr(buf, "\r\n\r\n");
-	    if(id != NULL) {
+		id= strstr(buf, "\r\n\r\n");
+		if(id != NULL) {
 		htmlstart = 1;
 		id += 4;
-	    }
+		}
 	} else {
-	    id = buf;
+		id = buf;
 	}
 
 	/* If we found a stranger id then copy it and
 	 at the end of function */
 	if(htmlstart) {
-	    result = (char *)malloc(sizeof(char)*100);
-	    if(result == NULL) {
+		result = (char *)malloc(sizeof(char)*100);
+		if(result == NULL) {
 		perror("malloc()");
 		exit(-1);
-	    }
-	    memcpy(result, id, 100);
+		}
+		memcpy(result, id, 100);
 	}
 	memset(buf, 0, tempres);
-    }
+	}
 
-    if(tempres < 0) {
+	if(tempres < 0) {
 	perror("[!] Error reciving data.");
 	exit(-1);
-    }
+	}
 
-    free(remote);
-    free(post_request);
-    close(sock);
+	free(remote);
+	free(post_request);
+	close(sock);
 
-    return result;
+	return result;
 }
 
 
 /* Get ip of hostname */
 char *get_ip(char *host)
 {
-    struct hostent *hent;
-    int iplen = 15;  /* xxx.xxx.xxx.xxx */
-    char *ip = (char *)malloc(sizeof(char)*(iplen+1));
-    if(ip == NULL) {
+	struct hostent *hent;
+	int iplen = 15;  /* xxx.xxx.xxx.xxx */
+	char *ip = (char *)malloc(sizeof(char)*(iplen+1));
+	if(ip == NULL) {
 	perror("malloc()");
 	return NULL;
-    }
-    memset(ip, 0x00, iplen+1);
+	}
+	memset(ip, 0x00, iplen+1);
 
-    /* Get gethostbyname */
-    if((hent = gethostbyname(host)) == NULL) {
+	/* Get gethostbyname */
+	if((hent = gethostbyname(host)) == NULL) {
 	perror("gethostbyname()");
 	return NULL;
-    }
+	}
 
-    /* Resolve hostname */
-    if(inet_ntop(AF_INET, (void *)hent->h_addr_list[0], ip, iplen) == NULL) {
+	/* Resolve hostname */
+	if(inet_ntop(AF_INET, (void *)hent->h_addr_list[0], ip, iplen) == NULL) {
 	perror("inet_ntop()");
 	return NULL;
-    }
-    return ip;
+	}
+	return ip;
 }
 
 /* Create a socket fd and return it's number */
 int create_tcp_socket()
 {
-    int sock;
-    if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
+	int sock;
+	if((sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
 	perror("socket()");
 	return -1;
-    }
-    return sock;
+	}
+	return sock;
 }
 
 
 /* Set POST query */
 char *build_post(char *host, char *page, char *data)
 {
-    char *query;
-    char *command  = "POST /%s HTTP/1.0\r\n\
+	char *query;
+	char *command  = "POST /%s HTTP/1.0\r\n\
 HOST: %s\r\n\
 User-Agent: Omeglebot\r\n\
 Accept: text/javascript, text/html, application/xml, text/xml, */*\r\n\
@@ -414,23 +414,23 @@ Referer: http://omegle.com/\r\n\
 Pragma: no-cache\r\n\
 Cache-Control: no-cache\r\n\
 Content-Length: %d\r\n\r\n%s\r\n";
-    char *fixedpage = page;
+	char *fixedpage = page;
 
 /* Keep-Alive: 300\r\n\ */
 
-    if(fixedpage[0] == '/') {
+	if(fixedpage[0] == '/') {
 	fixedpage = page + 1;
-    }
+	}
 
 
-    query = (char *)malloc(sizeof(char)*(strlen(host)+strlen(fixedpage)+strlen("Omeglebot")
+	query = (char *)malloc(sizeof(char)*(strlen(host)+strlen(fixedpage)+strlen("Omeglebot")
 					 +strlen(command)+5+strlen(data)));
-    if(query == NULL) {
+	if(query == NULL) {
 	perror("malloc()");
 	exit(-1);
-    }
+	}
 
-    sprintf(query, command, fixedpage, host, strlen(data), data);
-    /* printf(">>>>>>>>>>>> %s <<<<<<<<<<<<<<\n", query); */
-    return query;
+	sprintf(query, command, fixedpage, host, strlen(data), data);
+	/* printf(">>>>>>>>>>>> %s <<<<<<<<<<<<<<\n", query); */
+	return query;
 }
