@@ -4,6 +4,8 @@
 #include <strings.h>
 #include <unistd.h>
 
+#include <readline/readline.h>
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -29,9 +31,9 @@ int check_event(char *, int);
 struct sockaddr_in *create_remote();
 
 struct omegle {
-	char *id;		/* id */
-	char *event;	 /* current event from /events */
-	char *ip;		/* omegle ip */
+	char *id;    /* id */
+	char *event; /* current event from /events */
+	char *ip;    /* omegle ip */
 };
 
 int sock = -1;
@@ -46,7 +48,7 @@ int main() {
 	/* Get user stranger ID */
 	user.id = get_id();
 	remchar(user.id, '"');
-	fprintf(stdout,"[!] Stranger id: %s\n", user.id);
+	fprintf(stdout,"[!] Stranger id: %s.\n", user.id);
 	fflush(stdout);
 
 	/***********************************/
@@ -54,6 +56,7 @@ int main() {
 	/***********************************/
 	char *message = NULL;
 	char *count   = NULL;
+	char* say_input;
 	while(1) {
 	user.event = get_event(user.id);
 	/* fprintf(stdout,"[+] Event %s\n", user.event); */
@@ -86,15 +89,20 @@ int main() {
 		char *message = parse_json_value(user.event, "gotMessage");
 		fprintf(stdout,"Stranger: %s\n", message);
 		free(message);
+	}
 
-		/* Send a message when ever we get one just for testing */
-		// say_something("Hey what's up?", user.id);
+	/* Send message */
+	say_input = readline("");
+
+	if(say_input != NULL) { 
+		say_something(say_input, user.id);
+		free(say_input);
 	}
 
 	/* Stranger disconnected */
 	if(check_event("strangerDisconnected", WITH_RESULTS)) {
 		fprintf(stdout,"[!] Stranger disconnected.\n");
-		fprintf(stdout,"[!] Because of event: %s\n", user.event);
+		fprintf(stdout,"[!] Because of event: %s.\n", user.event);
 		/* Reconnect when stranger disconnects */
 		free(user.id);
 		reconnect();
@@ -147,8 +155,6 @@ void remchar(char *string, char o)
 }
 
 /* A function to send message to omegle */
-/* TODO: */
-/* message bounadires */
 void say_something(char *message, char *id)
 {
 	struct sockaddr_in *remote;
@@ -184,11 +190,11 @@ void say_something(char *message, char *id)
 	sent += tempres;
 	}
 
-	fprintf(stdout,"You: %s\n", message);
+	//fprintf(stdout,"You: %s\n", message);
 
 	free(remote);
 	free(post_request);
-	close(sock);	
+	close(sock);
 }
 
 

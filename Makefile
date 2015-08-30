@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-ggdb -m32
+CC=gcc -std=gnu11
+CFLAGS=-ggdb -m32 -lreadline
 SRC=$(wildcard src/*.c)
 
 all:
